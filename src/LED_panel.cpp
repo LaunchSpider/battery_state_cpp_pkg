@@ -8,9 +8,11 @@ using std::placeholders::_2;
 class LEDPanelServerNode : public rclcpp::Node
 {
 public:
-    LEDPanelServerNode() : Node("set_led_server"), led_state(3, 0)
+    LEDPanelServerNode() : Node("set_led_server")
     {
 
+        this->declare_parameter("set_led_state", std::vector<int64_t>{0, 0, 0});
+        led_state = this->get_parameter("set_led_state").as_integer_array();
         publisher_ = this->create_publisher<custom_interfaces::msg::BatteryState>("led_state", 10);
         timer_ = this->create_wall_timer(std::chrono::milliseconds(4000), std::bind(&LEDPanelServerNode::publish_led_state, this));
         server_ = this->create_service<custom_interfaces::srv::SetLED>("set_led", std::bind(&LEDPanelServerNode::callback_set_led, this, _1, _2));
